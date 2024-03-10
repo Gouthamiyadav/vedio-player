@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -41,10 +41,9 @@ const Loader = styled.div`
 const SearchBar = styled.div`
   display: flex;
   align-items: center;
-  // margin-bottom: 30px;
   padding: 10px;
   position: absolute;
-  // right: 550px;
+  right: 650px;
   top: 30px;
   border: 1px solid #ccc;
   border-radius: 30px;
@@ -60,13 +59,15 @@ const SearchInput = styled.input`
 
 const SearchIcon = styled(FontAwesomeIcon)`
   margin-right: 5px;
+  color: #2196f3;
 `;
 
 const Name = styled.p`
-  font-size: 30px;
+  font-size: 25px;
   display: flex;
   align-self: center;
   margin: 0px 0px 10px 0px;
+  color: #2196f3;
 `;
 
 const Playlist = ({ videos, onSelectVideo }) => {
@@ -74,6 +75,11 @@ const Playlist = ({ videos, onSelectVideo }) => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredVideos, setFilteredVideos] = useState(videos);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    handleVideoClick(0);
+  }, []);
 
   const handleVideoClick = (index) => {
     setLoading(true);
@@ -116,6 +122,7 @@ const Playlist = ({ videos, onSelectVideo }) => {
             onClick={() => handleVideoClick(index)}
           >
             <Thumbnail
+              ref={videoRef}
               src={video.sources}
               onClick={() => handleVideoClick(index)}
             />

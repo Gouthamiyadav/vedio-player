@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faVideo, faUser } from "@fortawesome/free-solid-svg-icons";
 
 const StyledAppBar = styled.div`
   padding: 10px 20px;
@@ -14,11 +16,29 @@ const StyledToolbar = styled.div`
 
 const StyledTypography = styled.h2`
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  color: #2196f3;
+`;
+
+const Icon = styled(FontAwesomeIcon)`
+  margin-right: 10px;
+  color: #2196f3;
+`;
+
+const AccountIcon = styled(FontAwesomeIcon)`
+  border-radius: 50%;
+  background-color: #2196f3;
+  padding: 14px;
+  margin-left: 10px;
 `;
 
 const SwitchContainer = styled.div`
   display: flex;
   align-items: center;
+  margin-right: 20px;
+  color: #2196f3;
+  font-size: 18px;
 `;
 
 const SwitchLabel = styled.label`
@@ -52,7 +72,10 @@ const UpperNavBar = ({ toggleMode, isDarkMode }) => {
   return (
     <StyledAppBar>
       <StyledToolbar>
-        <StyledTypography>Vedio Player</StyledTypography>
+        <StyledTypography>
+          <Icon icon={faVideo} />
+          Video Player
+        </StyledTypography>
         <SwitchContainer>
           <SwitchLabel>{isDarkMode ? "Light Mode" : "Dark Mode"}</SwitchLabel>
           <SwitchInput
@@ -61,6 +84,7 @@ const UpperNavBar = ({ toggleMode, isDarkMode }) => {
             onChange={toggleMode}
           />
         </SwitchContainer>
+        <AccountIcon icon={faUser} />
       </StyledToolbar>
     </StyledAppBar>
   );

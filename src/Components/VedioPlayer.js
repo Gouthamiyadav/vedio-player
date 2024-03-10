@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -97,15 +97,6 @@ const SpeedSelector = styled.select`
   border-radius: 8px;
 `;
 
-const SubtitleSelector = styled.select`
-  background-color: white;
-  color: black;
-  border: none;
-  margin-left: 10px;
-  border-radius: 8px;
-  padding: 5px;
-`;
-
 const Title = styled.h2`
   margin-top: 50px;
 `;
@@ -147,19 +138,43 @@ const VideoPlayer = ({ src, title, description }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
-  const [selectedSubtitle, setSelectedSubtitle] = useState("");
   const [showVolumeBar, setShowVolumeBar] = useState(false);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const [likeStatus, setLikeStatus] = useState(null);
 
+  useEffect(() => {
+    const handleKeydown = (event) => {
+      switch (event.key) {
+        case " ":
+          togglePlay();
+          break;
+        case "ArrowLeft":
+          videoRef.current.currentTime -= 10;
+          break;
+        case "ArrowRight":
+          videoRef.current.currentTime += 10;
+          break;
+
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [volume]);
+
   const togglePlay = () => {
+    setIsPlaying((prevIsPlaying) => !prevIsPlaying);
     if (isPlaying) {
       videoRef.current.pause();
     } else {
       videoRef.current.play();
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleSeek = (e) => {
@@ -190,7 +205,6 @@ const VideoPlayer = ({ src, title, description }) => {
       } else if (videoRef.current.msRequestFullscreen) {
         videoRef.current.msRequestFullscreen();
       }
-      setIsFullScreen(true);
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
@@ -234,11 +248,6 @@ const VideoPlayer = ({ src, title, description }) => {
     togglePlay();
   };
 
-  const handleSubtitleChange = (e) => {
-    const selectedSubtitle = e.target.value;
-    setSelectedSubtitle(selectedSubtitle);
-  };
-
   const handleLike = () => {
     if (likeStatus === "liked") {
       setLikeStatus(null);
@@ -271,11 +280,13 @@ const VideoPlayer = ({ src, title, description }) => {
         src={src}
         onTimeUpdate={updateTime}
         onLoadedMetadata={updateTime}
-        onEnded={() => setIsPlaying(false)}
         autoPlay
         onClick={handleVideoClick}
         playbackRate={speed}
         volume={volume}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
       />
       <Controls>
         <ControlButton onClick={togglePlay}>
@@ -330,17 +341,6 @@ const VideoPlayer = ({ src, title, description }) => {
                 <option value={2}>2</option>
               </SpeedSelector>
             </SettingsItem>
-            <SettingsItem>
-              Subtitle
-              <SubtitleSelector
-                value={selectedSubtitle}
-                onChange={handleSubtitleChange}
-              >
-                <option value="">No Subtitle</option>
-                <option value="english">English</option>
-                <option value="spanish">Spanish</option>
-              </SubtitleSelector>
-            </SettingsItem>
           </SettingsMenu>
         )}
         <ControlButton onClick={handleFullScreen}>
@@ -352,7 +352,7 @@ const VideoPlayer = ({ src, title, description }) => {
         </ControlButton>
       </Controls>
       <Title>{title}</Title>
-      <h4>{description}</h4>
+      <p>{description}</p>
       <div>
         <LikeButton onClick={handleLike} isActive={likeStatus === "liked"}>
           <FontAwesomeIcon icon={faThumbsUp} /> {likes}

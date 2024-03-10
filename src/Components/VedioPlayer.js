@@ -9,13 +9,16 @@ import {
   faVolumeUp,
   faVolumeMute,
   faCog,
+  faThumbsUp,
+  faThumbsDown,
 } from "@fortawesome/free-solid-svg-icons";
 
 const VideoContainer = styled.div`
   position: relative;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 1000px;
+  margin-left: 20px;
+  // margin-top: 80px;
 `;
 
 const Video = styled.video`
@@ -25,7 +28,7 @@ const Video = styled.video`
 
 const Controls = styled.div`
   position: absolute;
-  bottom: 4px;
+  // top: 415px;
   left: 0;
   right: 0;
   background-color: rgba(0, 0, 0, 0.5);
@@ -68,7 +71,7 @@ const SettingsButton = styled.button`
 
 const SettingsMenu = styled.div`
   position: absolute;
-  top: -48px;
+  top: -84px;
   right: 10px;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
@@ -90,11 +93,51 @@ const SpeedSelector = styled.select`
   color: black;
   border: none;
   padding: 5px;
-  margin-left: 10px;
+  margin-left: 22px;
   border-radius: 8px;
 `;
 
-const VideoPlayer = ({ src }) => {
+const SubtitleSelector = styled.select`
+  background-color: white;
+  color: black;
+  border: none;
+  margin-left: 10px;
+  border-radius: 8px;
+  padding: 5px;
+`;
+
+const Title = styled.h2`
+  margin-top: 50px;
+`;
+
+const LikeButton = styled.button`
+  background-color: #3cba9f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #21825c;
+  }
+`;
+
+const DislikeButton = styled.button`
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ba281d;
+  }
+`;
+
+const VideoPlayer = ({ src, title, description }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -104,7 +147,11 @@ const VideoPlayer = ({ src }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedSubtitle, setSelectedSubtitle] = useState("");
   const [showVolumeBar, setShowVolumeBar] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+  const [likeStatus, setLikeStatus] = useState(null);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -162,12 +209,6 @@ const VideoPlayer = ({ src }) => {
     setShowSettings(!showSettings);
   };
 
-  // const toggleMute = () => {
-  //   const newMuted = !isMuted;
-  //   videoRef.current.muted = newMuted;
-  //   setIsMuted(newMuted);
-  // };
-
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     videoRef.current.volume = newVolume;
@@ -193,6 +234,36 @@ const VideoPlayer = ({ src }) => {
     togglePlay();
   };
 
+  const handleSubtitleChange = (e) => {
+    const selectedSubtitle = e.target.value;
+    setSelectedSubtitle(selectedSubtitle);
+  };
+
+  const handleLike = () => {
+    if (likeStatus === "liked") {
+      setLikeStatus(null);
+      setLikes(likes - 1);
+    } else {
+      setLikeStatus("liked");
+      setLikes(likes + 1);
+      if (likeStatus === "disliked") {
+        setDislikes(dislikes - 1);
+      }
+    }
+  };
+
+  const handleDislike = () => {
+    if (likeStatus === "disliked") {
+      setLikeStatus(null);
+      setDislikes(dislikes - 1);
+    } else {
+      setLikeStatus("disliked");
+      setDislikes(dislikes + 1);
+      if (likeStatus === "liked") {
+        setLikes(likes - 1);
+      }
+    }
+  };
   return (
     <VideoContainer>
       <Video
@@ -259,6 +330,17 @@ const VideoPlayer = ({ src }) => {
                 <option value={2}>2</option>
               </SpeedSelector>
             </SettingsItem>
+            <SettingsItem>
+              Subtitle
+              <SubtitleSelector
+                value={selectedSubtitle}
+                onChange={handleSubtitleChange}
+              >
+                <option value="">No Subtitle</option>
+                <option value="english">English</option>
+                <option value="spanish">Spanish</option>
+              </SubtitleSelector>
+            </SettingsItem>
           </SettingsMenu>
         )}
         <ControlButton onClick={handleFullScreen}>
@@ -269,6 +351,19 @@ const VideoPlayer = ({ src }) => {
           )}
         </ControlButton>
       </Controls>
+      <Title>{title}</Title>
+      <h4>{description}</h4>
+      <div>
+        <LikeButton onClick={handleLike} isActive={likeStatus === "liked"}>
+          <FontAwesomeIcon icon={faThumbsUp} /> {likes}
+        </LikeButton>
+        <DislikeButton
+          onClick={handleDislike}
+          isActive={likeStatus === "disliked"}
+        >
+          <FontAwesomeIcon icon={faThumbsDown} /> {dislikes}
+        </DislikeButton>
+      </div>
     </VideoContainer>
   );
 };

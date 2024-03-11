@@ -83,11 +83,16 @@ const Playlist = ({ videos, onSelectVideo }) => {
 
   const handleVideoClick = (index) => {
     setLoading(true);
-    setTimeout(() => {
-      setSelectedVideoIndex(index);
-      onSelectVideo(index);
+    try {
+      setTimeout(() => {
+        setSelectedVideoIndex(index);
+        onSelectVideo(index);
+        setLoading(false);
+      }, 1000);
+    } catch (error) {
+      console.error("Error playing video:", error);
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSearch = (e) => {
@@ -115,20 +120,24 @@ const Playlist = ({ videos, onSelectVideo }) => {
         <Loader loading={loading}>
           <FontAwesomeIcon icon={faSpinner} spin size="3x" />
         </Loader>
-        {filteredVideos.map((video, index) => (
-          <PlaylistItem
-            key={index}
-            active={selectedVideoIndex === index}
-            onClick={() => handleVideoClick(index)}
-          >
-            <Thumbnail
-              ref={videoRef}
-              src={video.sources}
+        {filteredVideos.length === 0 ? (
+          <p>No videos found</p>
+        ) : (
+          filteredVideos.map((video, index) => (
+            <PlaylistItem
+              key={index}
+              active={selectedVideoIndex === index}
               onClick={() => handleVideoClick(index)}
-            />
-            {video.title}
-          </PlaylistItem>
-        ))}
+            >
+              <Thumbnail
+                ref={videoRef}
+                src={video.sources}
+                onClick={() => handleVideoClick(index)}
+              />
+              {video.title}
+            </PlaylistItem>
+          ))
+        )}
       </PlaylistContainer>
     </>
   );

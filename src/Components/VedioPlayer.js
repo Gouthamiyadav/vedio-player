@@ -71,7 +71,7 @@ const SettingsButton = styled.button`
 
 const SettingsMenu = styled.div`
   position: absolute;
-  top: -84px;
+  top: -48px;
   right: 10px;
   background-color: rgba(0, 0, 0, 0.5);
   color: white;
